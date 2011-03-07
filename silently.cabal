@@ -2,7 +2,7 @@ name: silently
 version: 0.0.2
 cabal-version: -any
 build-type: Simple
-license: AllRightsReserved
+license: BSD3
 license-file: LICENSE
 copyright: (c) Trystan Spangler 2011
 maintainer: trystan.s@comcast.net
