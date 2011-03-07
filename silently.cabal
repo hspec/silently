@@ -1,0 +1,46 @@
+name: silently
+version: 0.0.1
+cabal-version: -any
+build-type: Simple
+license: AllRightsReserved
+license-file: ""
+copyright: (c) Trystan Spangler 2011
+maintainer: trystan.s@comcast.net
+build-depends: base >=4 && <=5, directory -any, ghc -any
+stability:
+homepage: https://github.com/trystan/silently
+package-url: https://github.com/trystan/silently
+bug-reports: https://github.com/trystan/silently/issues
+synopsis: Prevent writing to stdout in Haskel.
+description: Prevent writing to stdout in Haskel.
+category:
+author: Trystan Spangler
+tested-with: GHC ==7.0
+data-files:
+data-dir: ""
+extra-source-files:
+extra-tmp-files:
+exposed-modules: System.IO.Silently
+exposed: True
+buildable: True
+build-tools:
+cpp-options:
+cc-options:
+ld-options:
+pkgconfig-depends:
+frameworks:
+c-sources:
+extensions:
+extra-libraries:
+extra-lib-dirs:
+includes:
+install-includes:
+include-dirs:
+hs-source-dirs: src
+other-modules:
+ghc-prof-options:
+ghc-shared-options:
+ghc-options: -Wall
+hugs-options:
+nhc98-options:
+jhc-options:
