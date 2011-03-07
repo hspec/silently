@@ -5,7 +5,7 @@ module System.IO.Silently (
 
 import GHC.IO.Handle
 import System.IO
-import Control.Exception (finally)
+import Control.Exception (bracket)
 import System.Directory
 
 -- | Run an IO action while ignoring all output to stdout.
@@ -16,6 +16,9 @@ silently = hSilently stdout
 hSilently :: Handle -> IO a -> IO a
 hSilently handle action = do
   oldHandle <- hDuplicate handle
-  (tmpFile, tmpHandle) <- openTempFile "." "silently"
-  hDuplicateTo tmpHandle handle
-  finally action (hDuplicateTo oldHandle handle >> hClose tmpHandle >> removeFile tmpFile)
+  bracket (openTempFile "." "silently")
+          (\(tmpFile, tmpHandle) -> do hDuplicateTo oldHandle handle
+                                       hClose tmpHandle
+                                       removeFile tmpFile)
+          (\(_,       tmpHandle) -> do hDuplicateTo tmpHandle handle
+                                       action)
