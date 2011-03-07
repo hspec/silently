@@ -3,7 +3,7 @@ version: 0.0.1
 cabal-version: -any
 build-type: Simple
 license: AllRightsReserved
-license-file: ""
+license-file: LICENCE
 copyright: (c) Trystan Spangler 2011
 maintainer: trystan.s@comcast.net
 build-depends: base >=4 && <=5, directory -any, ghc -any
