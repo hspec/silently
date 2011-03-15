@@ -3,8 +3,8 @@
 -- your own means? Now you can, with 'silence' and 'capture'.
 
 module System.IO.Silently (
-  silence, hSilence, hSilenceMany,
-  capture, hCapture, hCaptureMany
+  silence, hSilence,
+  capture, hCapture
 ) where
 
 import GHC.IO.Handle (hDuplicate, hDuplicateTo)
@@ -17,15 +17,10 @@ import System.Directory (removeFile)
 silence :: IO a -> IO a
 silence = hSilence stdout
 
--- | Run an IO action while preventing all output to the given handle.
--- This will, as a side effect, create and delete a temp file in the current directory.
-hSilence :: Handle -> IO a -> IO a
-hSilence handle action = hSilenceMany [handle] action
-
 -- | Run an IO action while preventing all output to the given handles.
 -- This will, as a side effect, create and delete a temp file in the current directory.
-hSilenceMany :: [Handle] -> IO a -> IO a
-hSilenceMany handles action = do
+hSilence :: [Handle] -> IO a -> IO a
+hSilence handles action = do
   oldHandles <- mapM hDuplicate handles
   bracket (openTempFile "." "silence")
           (\(tmpFile, tmpHandle) -> do sequence_ $ zipWith hDuplicateTo oldHandles handles
@@ -40,16 +35,10 @@ hSilenceMany handles action = do
 capture :: IO a -> IO (String, a)
 capture = hCapture stdout
 
--- | Run an IO action while preventing and capturing all output to the given handle.
--- This will, as a side effect, create and delete a temp file in the current directory.
-hCapture :: Handle -> IO a -> IO (String, a)
-hCapture handle action = hCaptureMany [handle] action
-
-
 -- | Run an IO action while preventing and capturing all output to the given handles.
 -- This will, as a side effect, create and delete a temp file in the current directory.
-hCaptureMany :: [Handle] -> IO a -> IO (String, a)
-hCaptureMany handles action = do
+hCapture :: [Handle] -> IO a -> IO (String, a)
+hCapture handles action = do
   oldHandles <- mapM hDuplicate handles
   bracket (openTempFile "." "capture")
           (\(tmpFile, tmpHandle) -> do sequence_ $ zipWith hDuplicateTo oldHandles handles
