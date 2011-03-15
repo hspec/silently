@@ -36,7 +36,14 @@ extra-lib-dirs:
 includes:
 install-includes:
 include-dirs:
-hs-source-dirs: src
+
+If os(windows)
+ Hs-Source-Dirs: windows/src
+Else If os(linux) || os(osx)
+ Hs-Source-Dirs: unix/src
+Else
+ Hs-Source-Dirs: other/src
+
 other-modules:
 ghc-prof-options:
 ghc-shared-options:
