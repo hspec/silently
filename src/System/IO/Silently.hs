@@ -3,7 +3,7 @@
 -- your own means? Now you can, with 'silence' and 'capture'.
 
 module System.IO.Silently (
-  silently, hSilently, hSilentlyMany,
+  silence, hSilence, hSilenceMany,
   capture, hCapture, hCaptureMany
 ) where
 
@@ -14,18 +14,18 @@ import System.Directory (removeFile)
 
 -- | Run an IO action while preventing all output to stdout.
 -- This will, as a side effect, create and delete a temp file in the current directory.
-silently :: IO a -> IO a
-silently = hSilently stdout
+silence :: IO a -> IO a
+silence = hSilence stdout
 
 -- | Run an IO action while preventing all output to the given handle.
 -- This will, as a side effect, create and delete a temp file in the current directory.
-hSilently :: Handle -> IO a -> IO a
-hSilently handle action = hSilentlyMany [handle] action
+hSilence :: Handle -> IO a -> IO a
+hSilence handle action = hSilenceMany [handle] action
 
 -- | Run an IO action while preventing all output to the given handles.
 -- This will, as a side effect, create and delete a temp file in the current directory.
-hSilentlyMany :: [Handle] -> IO a -> IO a
-hSilentlyMany handles action = do
+hSilenceMany :: [Handle] -> IO a -> IO a
+hSilenceMany handles action = do
   oldHandles <- mapM hDuplicate handles
   bracket (openTempFile "." "silence")
           (\(tmpFile, tmpHandle) -> do sequence_ $ zipWith hDuplicateTo oldHandles handles
