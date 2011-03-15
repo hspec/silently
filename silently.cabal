@@ -7,47 +7,24 @@ license-file: LICENSE
 copyright: (c) Trystan Spangler 2011
 maintainer: trystan.s@comcast.net
 build-depends: base >=4 && <=5, directory -any, ghc -any
-stability:
+stability: experimental
 homepage: https://github.com/trystan/silently
 package-url: https://github.com/trystan/silently
 bug-reports: https://github.com/trystan/silently/issues
-synopsis: Prevent or capture writing to stdout and other handles.
-description: Prevent or capture writing to stdout or any given list of handles.
+synopsis: Prevent or capture writing to stdout or other handles.
+description: Prevent or capture writing to stdout or other handles.
 category:
 author: Trystan Spangler
 tested-with: GHC ==7.0
-data-files:
 data-dir: ""
-extra-source-files:
-extra-tmp-files:
 exposed-modules: System.IO.Silently
 exposed: True
 buildable: True
-build-tools:
-cpp-options:
-cc-options:
-ld-options:
-pkgconfig-depends:
-frameworks:
-c-sources:
-extensions:
-extra-libraries:
-extra-lib-dirs:
-includes:
-install-includes:
-include-dirs:
 
 If os(windows)
- Hs-Source-Dirs: windows/src
-Else If os(linux) || os(osx)
- Hs-Source-Dirs: unix/src
-Else
- Hs-Source-Dirs: other/src
-
-other-modules:
-ghc-prof-options:
-ghc-shared-options:
-ghc-options: -Wall
-hugs-options:
-nhc98-options:
-jhc-options:
+  Hs-Source-Dirs: windows/src
+else
+  if os(linux) || os(osx)
+    Hs-Source-Dirs: unix/src
+  else
+    Hs-Source-Dirs: other/src
