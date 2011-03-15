@@ -1,5 +1,5 @@
 name: silently
-version: 0.0.2
+version: 0.0.3
 cabal-version: -any
 build-type: Simple
 license: BSD3
@@ -11,8 +11,8 @@ stability:
 homepage: https://github.com/trystan/silently
 package-url: https://github.com/trystan/silently
 bug-reports: https://github.com/trystan/silently/issues
-synopsis: Prevent or capture writing to stdout.
-description: Prevent or capture writing to stdout, or any given handle.
+synopsis: Prevent or capture writing to stdout and other handles.
+description: Prevent or capture writing to stdout or any given list of handles.
 category:
 author: Trystan Spangler
 tested-with: GHC ==7.0
