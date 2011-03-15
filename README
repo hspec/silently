@@ -2,16 +2,21 @@ Silently is a package that allows you to run an IO action and prevent it from wr
 
 For example, in GHCI
 
- Prelude> :m + System.IO.Silently
- Prelude System.IO.Silently> let test1 = print 1 >> silently (print 2) >> print 3
- Prelude System.IO.Silently> let test2 = print 1 >> silently (print undefined) >> print 3
- Prelude System.IO.Silently> let test3 = capture (test1 >> return "puppies!")
- Prelude System.IO.Silently> test1
- 1
- 3
- Prelude System.IO.Silently> test2
- 1
- *** Exception: Prelude.undefined
- Prelude System.IO.Silently> test3
- ("1\n3\n","puppies!")
+Prelude> :m + System.IO.Silently
+Prelude System.IO.Silently> :m + System.IO
+Prelude System.IO.Silently System.IO>
+Prelude System.IO.Silently System.IO> print 1 >> silence (print 2 >> return "kittens!") >> print 3
+1
+3
+Prelude System.IO.Silently System.IO> print 1 >> capture (hPutStrLn stdout "2" >> hPutStrLn stderr "3" >> return "puppies!")
+1
+3
+("2\n","puppies!")
+Prelude System.IO.Silently System.IO> print 1 >> silence (hPutStrLn stdout "2" >> hPutStrLn stderr "3" >> return "kittens!") >> print 4
+1
+3
+4
+Prelude System.IO.Silently System.IO> print 1 >> hCaptureMany [stdout,stderr] (hPutStrLn stdout "2" >> hPutStrLn stderr "3" >> return "puppies!")
+1
+("2\n3\n","puppies!")
 
