@@ -40,13 +40,16 @@ capture = hCapture [stdout]
 hCapture :: [Handle] -> IO a -> IO (String, a)
 hCapture handles action = do
   oldHandles <- mapM hDuplicate handles
-  tmpDir <- getTempOrCurrentDirectory
-  bracket (openTempFile tmpDir "capture")
+  bracket (openTempFile "." "capture")
           (\(tmpFile, tmpHandle) -> do sequence_ $ zipWith hDuplicateTo oldHandles handles
                                        hClose tmpHandle
                                        removeFile tmpFile)
           (\(tmpFile, tmpHandle) -> do mapM_ (hDuplicateTo tmpHandle) handles
                                        a <- action
                                        hClose tmpHandle
+                                       sequence_ $ zipWith hDuplicateTo oldHandles handles
                                        str <- readFile tmpFile
+                                       forceList str
                                        return (str, a))
+forceList [] = return ()
+forceList (x:xs) = forceList xs
