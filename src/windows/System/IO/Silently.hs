@@ -31,12 +31,12 @@ getTempOrCurrentDirectory :: IO String
 getTempOrCurrentDirectory = getTemporaryDirectory `Prelude.catch` (\ex -> return ".")
 
 -- | Run an IO action while preventing and capturing all output to stdout.
--- This will, as a side effect, create and delete a temp file in the temp directory or current direcoty if there is no temp directory.
+-- This will, as a side effect, create and delete a temp file in the temp directory or current directory if there is no temp directory.
 capture :: IO a -> IO (String, a)
 capture = hCapture [stdout]
 
 -- | Run an IO action while preventing and capturing all output to the given handles.
--- This will, as a side effect, create and delete a temp file in the temp directory or current direcoty if there is no temp directory.
+-- This will, as a side effect, create and delete a temp file in the temp directory or current directory if there is no temp directory.
 hCapture :: [Handle] -> IO a -> IO (String, a)
 hCapture handles action = do
   oldHandles <- mapM hDuplicate handles
