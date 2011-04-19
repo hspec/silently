@@ -58,13 +58,9 @@ hCapture handles action = do
                  a <- action
                  hClose tmpHandle
                  str <- readFile tmpFile
-                 forceList str
                  return (str,a)
       go (h:hs) = bracket (do old <- hDuplicate h
                               hDuplicateTo tmpHandle h
                               return old)
                           (\old -> hDuplicateTo old h)
                           (\_   -> go hs)
-
-forceList [] = return ()
-forceList (x:xs) = forceList xs
