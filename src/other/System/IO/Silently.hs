@@ -21,13 +21,22 @@ silence = hSilence [stdout]
 -- This will, as a side effect, create and delete a temp file in the current directory.
 hSilence :: [Handle] -> IO a -> IO a
 hSilence handles action = do
-  oldHandles <- mapM hDuplicate handles
-  bracket (openTempFile "." "silence")
-          (\(tmpFile, tmpHandle) -> do sequence_ $ zipWith hDuplicateTo oldHandles handles
-                                       hClose tmpHandle
-                                       removeFile tmpFile)
-          (\(_,       tmpHandle) -> do mapM_ (hDuplicateTo tmpHandle) handles
-                                       action)
+  tmpDir <- getTempOrCurrentDirectory
+  bracket (openTempFile tmpDir "silence")
+                             cleanup
+                             prepareAndRun
+ where
+  cleanup (tmpFile,tmpHandle) = do
+    hClose tmpHandle
+    removeFile tmpFile
+  prepareAndRun (_,tmpHandle) = go handles
+    where
+      go []     = action
+      go (h:hs) = bracket (do old <- hDuplicate h
+                              hDuplicateTo tmpHandle h
+                              return old)
+                          (\old -> hDuplicateTo old h)
+                          (\_   -> go hs)
 
 
 getTempOrCurrentDirectory :: IO String
@@ -42,14 +51,28 @@ capture = hCapture [stdout]
 -- This will, as a side effect, create and delete a temp file in the temp directory or current directory if there is no temp directory.
 hCapture :: [Handle] -> IO a -> IO (String, a)
 hCapture handles action = do
-  oldHandles <- mapM hDuplicate handles
   tmpDir <- getTempOrCurrentDirectory
   bracket (openTempFile tmpDir "capture")
-          (\(tmpFile, tmpHandle) -> do sequence_ $ zipWith hDuplicateTo oldHandles handles
-                                       hClose tmpHandle
-                                       removeFile tmpFile)
-          (\(tmpFile, tmpHandle) -> do mapM_ (hDuplicateTo tmpHandle) handles
-                                       a <- action
-                                       hClose tmpHandle
-                                       str <- readFile tmpFile
-                                       return (str, a))
+                             cleanup
+                             prepareAndRun
+ where
+  cleanup (tmpFile,tmpHandle) = do
+    hClose tmpHandle
+    removeFile tmpFile
+  prepareAndRun (tmpFile,tmpHandle) = go handles
+    where
+      go []     = do
+                 a <- action
+                 hClose tmpHandle
+                 str <- readFile tmpFile
+                 forceList str
+                 return (str,a)
+      go (h:hs) = bracket (do old <- hDuplicate h
+                              hDuplicateTo tmpHandle h
+                              return old)
+                          (\old -> hDuplicateTo old h)
+                          (\_   -> go hs)
+
+forceList [] = return ()
+forceList (x:xs) = forceList xs
+
