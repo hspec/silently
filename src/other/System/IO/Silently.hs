@@ -35,7 +35,7 @@ hSilence handles action = do
       go (h:hs) = bracket (do old <- hDuplicate h
                               hDuplicateTo tmpHandle h
                               return old)
-                          (\old -> hDuplicateTo old h)
+                          (\old -> hDuplicateTo old h >> hClose old)
                           (\_   -> go hs)
 
 
@@ -70,7 +70,7 @@ hCapture handles action = do
       go (h:hs) = bracket (do old <- hDuplicate h
                               hDuplicateTo tmpHandle h
                               return old)
-                          (\old -> hDuplicateTo old h)
+                          (\old -> hDuplicateTo old h >> hClose old)
                           (\_   -> go hs)
 
 forceList [] = return ()
