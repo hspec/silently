@@ -24,12 +24,8 @@ hSilence handles action = bracket (openFile "/dev/null" AppendMode)
  where
   prepareAndRun tmpHandle = go handles
     where
-      go []     = action
-      go (h:hs) = bracket (do old <- hDuplicate h
-                              hDuplicateTo tmpHandle h
-                              return old)
-                          (\old -> hDuplicateTo old h)
-                          (\_   -> go hs)
+      go [] = action
+      go hs = goBracket go tmpHandle hs
 
 
 getTempOrCurrentDirectory :: IO String
@@ -54,13 +50,16 @@ hCapture handles action = do
     removeFile tmpFile
   prepareAndRun (tmpFile,tmpHandle) = go handles
     where
-      go []     = do
-                 a <- action
-                 hClose tmpHandle
-                 str <- readFile tmpFile
-                 return (str,a)
-      go (h:hs) = bracket (do old <- hDuplicate h
-                              hDuplicateTo tmpHandle h
-                              return old)
-                          (\old -> hDuplicateTo old h)
-                          (\_   -> go hs)
+      go [] = do
+              a <- action
+              hClose tmpHandle
+              str <- readFile tmpFile
+              return (str,a)
+      go hs = goBracket go tmpHandle hs
+
+goBracket :: ([Handle] -> IO a) -> Handle -> [Handle] -> IO a
+goBracket go tmpHandle (h:hs) = bracket (do old <- hDuplicate h
+                                            hDuplicateTo tmpHandle h
+                                            return old)
+                                        (\old -> hDuplicateTo old h >> hClose old)
+                                        (\_   -> go hs)
