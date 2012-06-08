@@ -38,3 +38,27 @@ Library
     else
       hs-source-dirs: src/other
 
+test-suite spec
+  main-is:
+      Spec.hs
+  type:
+      exitcode-stdio-1.0
+  ghc-options:
+      -Wall -threaded
+      -- FIXME: use -Werror
+      -- -Wall -Werror -threaded
+  hs-source-dirs:
+      test
+
+  if os(windows)
+    hs-source-dirs: src/windows
+  else
+    if os(linux) || os(osx) || os(freebsd) || os(openbsd) || os(netbsd)
+      hs-source-dirs: src/unix
+    else
+      hs-source-dirs: src/other
+
+  build-depends:
+      base
+    , hspec-shouldbe
+    , directory
