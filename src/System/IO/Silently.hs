@@ -1,4 +1,4 @@
-
+{-# LANGUAGE CPP #-}
 -- | Need to prevent output to the terminal, a file, or stderr? Need to capture it and use it for
 -- your own means? Now you can, with 'silence' and 'capture'.
 
@@ -8,9 +8,18 @@ module System.IO.Silently (
 ) where
 
 import GHC.IO.Handle (hDuplicate, hDuplicateTo)
-import System.IO (Handle, stdout, hClose, openTempFile, openFile, IOMode(..))
+import System.IO
 import Control.Exception (bracket)
 import System.Directory (removeFile,getTemporaryDirectory)
+
+nullDevice :: FilePath
+#ifdef WINDOWS
+nullDevice = "NUL"
+#elif UNIX
+nullDevice = "/dev/null"
+#else
+nullDevice = undefined -- FIXME
+#endif
 
 -- | Run an IO action while preventing all output to stdout.
 silence :: IO a -> IO a
@@ -18,9 +27,11 @@ silence = hSilence [stdout]
 
 -- | Run an IO action while preventing all output to the given handles.
 hSilence :: [Handle] -> IO a -> IO a
-hSilence handles action = bracket (openFile "NUL" AppendMode)
+hSilence handles action = bracket (openFile nullDevice AppendMode)
                              hClose
                              prepareAndRun
+
+
  where
   prepareAndRun tmpHandle = go handles
     where
@@ -52,6 +63,7 @@ hCapture handles action = do
     where
       go [] = do
               a <- action
+              mapM_ hFlush handles
               hClose tmpHandle
               str <- readFile tmpFile
               forceList str

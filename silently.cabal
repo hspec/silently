@@ -31,10 +31,12 @@ Library
   buildable: True
 
   if os(windows)
-    hs-source-dirs: src/windows
+    hs-source-dirs: src
+    cpp-options: -DWINDOWS
   else
     if os(linux) || os(osx) || os(freebsd) || os(openbsd) || os(netbsd)
-      hs-source-dirs: src/unix
+      hs-source-dirs: src
+      cpp-options: -DUNIX
     else
       hs-source-dirs: src/other
 
@@ -51,10 +53,12 @@ test-suite spec
       test
 
   if os(windows)
-    hs-source-dirs: src/windows
+    hs-source-dirs: src
+    cpp-options: -DWINDOWS
   else
     if os(linux) || os(osx) || os(freebsd) || os(openbsd) || os(netbsd)
-      hs-source-dirs: src/unix
+      hs-source-dirs: src
+      cpp-options: -DUNIX
     else
       hs-source-dirs: src/other
 
