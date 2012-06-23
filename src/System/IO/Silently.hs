@@ -10,6 +10,7 @@ module System.IO.Silently (
 import GHC.IO.Handle (hDuplicate, hDuplicateTo)
 import System.IO
 import Control.Exception (bracket)
+import Control.DeepSeq
 import System.Directory (removeFile,getTemporaryDirectory)
 
 nullDevice :: FilePath
@@ -66,12 +67,8 @@ hCapture handles action = do
               mapM_ hFlush handles
               hClose tmpHandle
               str <- readFile tmpFile
-              forceList str
-              return (str,a)
+              str `deepseq` return (str,a)
       go hs = goBracket go tmpHandle hs
-
-forceList [] = return ()
-forceList (x:xs) = forceList xs
 
 goBracket :: ([Handle] -> IO a) -> Handle -> [Handle] -> IO a
 goBracket go tmpHandle (h:hs) = bracket (do old <- hDuplicate h

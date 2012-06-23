@@ -25,7 +25,10 @@ source-repository head
   location: https://github.com/trystan/silently
 
 Library
-  build-depends: base >=4 && <=5, directory -any
+  build-depends:
+      base >=4 && <=5
+    , directory
+    , deepseq
   exposed-modules: System.IO.Silently
   exposed: True
   buildable: True
@@ -66,3 +69,4 @@ test-suite spec
       base
     , hspec-shouldbe
     , directory
+    , deepseq
