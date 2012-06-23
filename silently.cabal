@@ -1,5 +1,5 @@
 name: silently
-version: 1.1.5
+version: 1.2
 cabal-version: >= 1.8
 build-type: Simple
 license: BSD3
@@ -15,10 +15,6 @@ description: Prevent or capture writing to stdout and other handles.
 category:
 author: Trystan Spangler
 tested-with: GHC ==7.0
-extra-source-files:
-  src/windows/System/IO/Silently.hs
-  src/unix/System/IO/Silently.hs
-  src/other/System/IO/Silently.hs
 
 source-repository head
   type: git
