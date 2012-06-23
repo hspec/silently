@@ -9,6 +9,7 @@ module System.IO.Silently (
 
 import GHC.IO.Handle (hDuplicate, hDuplicateTo)
 import System.IO
+import System.IO.Error
 import Control.Exception (bracket)
 import Control.DeepSeq
 import System.Directory (removeFile,getTemporaryDirectory)
@@ -41,7 +42,7 @@ hSilence handles action = bracket (openFile nullDevice AppendMode)
 
 
 getTempOrCurrentDirectory :: IO String
-getTempOrCurrentDirectory = getTemporaryDirectory `Prelude.catch` (\ex -> return ".")
+getTempOrCurrentDirectory = getTemporaryDirectory `catchIOError` (\_ -> return ".")
 
 -- | Run an IO action while preventing and capturing all output to stdout.
 -- This will, as a side effect, create and delete a temp file in the temp directory or current directory if there is no temp directory.
