@@ -14,13 +14,13 @@ import Control.Exception (bracket)
 import Control.DeepSeq
 import System.Directory (removeFile,getTemporaryDirectory)
 
-nullDevice :: FilePath
+mNullDevice :: Maybe FilePath
 #ifdef WINDOWS
-nullDevice = "NUL"
+mNullDevice = Just "NUL"
 #elif UNIX
-nullDevice = "/dev/null"
+mNullDevice = Just "/dev/null"
 #else
-nullDevice = undefined -- FIXME
+mNullDevice = Nothing
 #endif
 
 -- | Run an IO action while preventing all output to stdout.
@@ -29,12 +29,21 @@ silence = hSilence [stdout]
 
 -- | Run an IO action while preventing all output to the given handles.
 hSilence :: [Handle] -> IO a -> IO a
-hSilence handles action = bracket (openFile nullDevice AppendMode)
+hSilence handles action = case mNullDevice of
+  Just nullDevice -> bracket (openFile nullDevice AppendMode)
                              hClose
                              prepareAndRun
 
+  Nothing -> do
+    tmpDir <- getTempOrCurrentDirectory
+    bracket (openTempFile tmpDir "silence")
+                               cleanup
+                               (prepareAndRun . snd)
 
  where
+  cleanup (tmpFile,tmpHandle) = do
+    hClose tmpHandle
+    removeFile tmpFile
   prepareAndRun tmpHandle = go handles
     where
       go [] = action
