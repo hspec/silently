@@ -75,8 +75,8 @@ hCapture handles action = do
       go [] = do
               a <- action
               mapM_ hFlush handles
-              hClose tmpHandle
-              str <- readFile tmpFile
+              hSeek tmpHandle AbsoluteSeek 0
+              str <- hGetContents tmpHandle
               str `deepseq` return (str,a)
       go hs = goBracket go tmpHandle hs
 
