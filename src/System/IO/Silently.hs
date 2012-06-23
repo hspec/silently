@@ -65,12 +65,12 @@ hCapture handles action = do
   tmpDir <- getTempOrCurrentDirectory
   bracket (openTempFile tmpDir "capture")
                              cleanup
-                             prepareAndRun
+                             (prepareAndRun . snd)
  where
   cleanup (tmpFile,tmpHandle) = do
     hClose tmpHandle
     removeFile tmpFile
-  prepareAndRun (tmpFile,tmpHandle) = go handles
+  prepareAndRun tmpHandle = go handles
     where
       go [] = do
               a <- action
