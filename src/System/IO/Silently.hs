@@ -1,4 +1,4 @@
-
+{-# LANGUAGE CPP #-}
 -- | Need to prevent output to the terminal, a file, or stderr? Need to capture it and use it for
 -- your own means? Now you can, with 'silence' and 'capture'.
 
@@ -8,9 +8,20 @@ module System.IO.Silently (
 ) where
 
 import GHC.IO.Handle (hDuplicate, hDuplicateTo)
-import System.IO (Handle, stdout, hClose, openTempFile, openFile, IOMode(..))
+import System.IO
+import System.IO.Error
 import Control.Exception (bracket)
+import Control.DeepSeq
 import System.Directory (removeFile,getTemporaryDirectory)
+
+mNullDevice :: Maybe FilePath
+#ifdef WINDOWS
+mNullDevice = Just "NUL"
+#elif UNIX
+mNullDevice = Just "/dev/null"
+#else
+mNullDevice = Nothing
+#endif
 
 -- | Run an IO action while preventing all output to stdout.
 silence :: IO a -> IO a
@@ -18,10 +29,21 @@ silence = hSilence [stdout]
 
 -- | Run an IO action while preventing all output to the given handles.
 hSilence :: [Handle] -> IO a -> IO a
-hSilence handles action = bracket (openFile "NUL" AppendMode)
+hSilence handles action = case mNullDevice of
+  Just nullDevice -> bracket (openFile nullDevice AppendMode)
                              hClose
                              prepareAndRun
+
+  Nothing -> do
+    tmpDir <- getTempOrCurrentDirectory
+    bracket (openTempFile tmpDir "silence")
+                               cleanup
+                               (prepareAndRun . snd)
+
  where
+  cleanup (tmpFile,tmpHandle) = do
+    hClose tmpHandle
+    removeFile tmpFile
   prepareAndRun tmpHandle = go handles
     where
       go [] = action
@@ -29,7 +51,7 @@ hSilence handles action = bracket (openFile "NUL" AppendMode)
 
 
 getTempOrCurrentDirectory :: IO String
-getTempOrCurrentDirectory = getTemporaryDirectory `Prelude.catch` (\ex -> return ".")
+getTempOrCurrentDirectory = getTemporaryDirectory `catchIOError` (\_ -> return ".")
 
 -- | Run an IO action while preventing and capturing all output to stdout.
 -- This will, as a side effect, create and delete a temp file in the temp directory or current directory if there is no temp directory.
@@ -43,23 +65,20 @@ hCapture handles action = do
   tmpDir <- getTempOrCurrentDirectory
   bracket (openTempFile tmpDir "capture")
                              cleanup
-                             prepareAndRun
+                             (prepareAndRun . snd)
  where
   cleanup (tmpFile,tmpHandle) = do
     hClose tmpHandle
     removeFile tmpFile
-  prepareAndRun (tmpFile,tmpHandle) = go handles
+  prepareAndRun tmpHandle = go handles
     where
       go [] = do
               a <- action
-              hClose tmpHandle
-              str <- readFile tmpFile
-              forceList str
-              return (str,a)
+              mapM_ hFlush handles
+              hSeek tmpHandle AbsoluteSeek 0
+              str <- hGetContents tmpHandle
+              str `deepseq` return (str,a)
       go hs = goBracket go tmpHandle hs
-
-forceList [] = return ()
-forceList (x:xs) = forceList xs
 
 goBracket :: ([Handle] -> IO a) -> Handle -> [Handle] -> IO a
 goBracket go tmpHandle (h:hs) = bracket (do old <- hDuplicate h
