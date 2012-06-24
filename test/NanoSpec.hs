@@ -22,3 +22,15 @@ it label = tell . return . TestLabel label . TestCase
 
 hspec :: Spec -> IO ()
 hspec = void . runTestTT . TestList . execWriter
+
+
+-- Catchy combinators from https://github.com/sol/hspec-expectations
+type Expectation = Assertion
+
+infix 1 `shouldBe`, `shouldReturn`
+
+shouldBe :: (Show a, Eq a) => a -> a -> Expectation
+actual `shouldBe` expected = actual @?= expected
+
+shouldReturn :: (Show a, Eq a) => IO a -> a -> Expectation
+action `shouldReturn` expected = action >>= (`shouldBe` expected)

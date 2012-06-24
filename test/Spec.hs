@@ -1,13 +1,6 @@
-{-# LANGUAGE CPP #-}
 module Main (main) where
 
-#ifdef USE_NANOSPEC
-import           Test.Hspec.Expectations
 import           NanoSpec
-#else
-import           Test.Hspec.ShouldBe
-#endif
-
 import           System.IO
 import           System.IO.Silently
 import           System.Directory
@@ -21,7 +14,7 @@ spec :: Spec
 spec = do
 
   describe "hSilence" $ do
-    it "prevents output to a given handle" $ let file = "test/foo.txt" in do
+    it "prevents output to a given handle" $ let file = "foo.txt" in do
       h <- openFile file ReadWriteMode
       hSilence [h] $ do
         hPutStrLn h "foo bar baz"

@@ -59,7 +59,6 @@ test-suite spec-specific
   build-depends:
       base
     , silently
-    , hspec-expectations
     , HUnit
     , directory
     , transformers
@@ -80,6 +79,5 @@ test-suite spec-generic
 
   build-depends:
       base
-    , hspec-shouldbe
     , directory
     , deepseq
