@@ -7,10 +7,10 @@ module System.IO.Silently (
   capture, hCapture
 ) where
 
+import Prelude hiding (catch)
 import GHC.IO.Handle (hDuplicate, hDuplicateTo)
 import System.IO
-import System.IO.Error
-import Control.Exception (bracket)
+import Control.Exception (bracket, catch)
 import Control.DeepSeq
 import System.Directory (removeFile,getTemporaryDirectory)
 
@@ -52,6 +52,11 @@ hSilence handles action = case mNullDevice of
 
 getTempOrCurrentDirectory :: IO String
 getTempOrCurrentDirectory = getTemporaryDirectory `catchIOError` (\_ -> return ".")
+  where
+    -- NOTE: We can not use `catchIOError` from "System.IO.Error", it is only
+    -- availabel in base >= 4.4.
+    catchIOError :: IO a -> (IOError -> IO a) -> IO a
+    catchIOError = catch
 
 -- | Run an IO action while preventing and capturing all output to stdout.
 -- This will, as a side effect, create and delete a temp file in the temp directory or current directory if there is no temp directory.
