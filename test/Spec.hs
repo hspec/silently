@@ -1,6 +1,12 @@
+{-# LANGUAGE CPP #-}
 module Main (main) where
 
+#ifdef USE_NANOSPEC
+import           Test.Hspec.Expectations
+import           NanoSpec
+#else
 import           Test.Hspec.ShouldBe
+#endif
 
 import           System.IO
 import           System.IO.Silently
