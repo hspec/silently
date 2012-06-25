@@ -59,8 +59,8 @@ test-suite spec-specific
   build-depends:
       base
     , silently
-    , HUnit
     , directory
+    , HUnit
     , transformers
 
 -- This tests the generic implementation, that should work on all platforms.
@@ -79,5 +79,7 @@ test-suite spec-generic
 
   build-depends:
       base
-    , directory
     , deepseq
+    , directory
+    , HUnit
+    , transformers
