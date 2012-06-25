@@ -26,8 +26,6 @@ Library
     , directory
     , deepseq
   exposed-modules: System.IO.Silently
-  exposed: True
-  buildable: True
 
   hs-source-dirs:
       src
@@ -53,9 +51,6 @@ test-suite spec-specific
       -Wall -Werror -threaded
   hs-source-dirs:
       test
-
-  cpp-options: -DUSE_NANOSPEC
-
   build-depends:
       base
     , silently
