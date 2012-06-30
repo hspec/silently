@@ -8,6 +8,7 @@ module NanoSpec where
 import           Control.Monad
 import           Control.Monad.Trans.Writer
 import           Test.HUnit
+import           System.Exit
 
 type Spec = Writer [Test] ()
 
@@ -21,7 +22,10 @@ it :: String -> Assertion -> Spec
 it label = tell . return . TestLabel label . TestCase
 
 hspec :: Spec -> IO ()
-hspec = void . runTestTT . TestList . execWriter
+hspec spec = do
+  r <- (runTestTT . TestList . execWriter) spec
+  when (errors r /= 0 || failures r /= 0)
+    exitFailure
 
 
 -- Catchy combinators from https://github.com/sol/hspec-expectations
