@@ -55,8 +55,7 @@ test-suite spec-specific
       base
     , silently
     , directory
-    , HUnit
-    , transformers
+    , nanospec
 
 -- This tests the generic implementation, that should work on all platforms.
 test-suite spec-generic
@@ -76,5 +75,4 @@ test-suite spec-generic
       base
     , deepseq
     , directory
-    , HUnit
-    , transformers
+    , nanospec
