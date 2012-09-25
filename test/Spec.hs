@@ -1,6 +1,6 @@
 module Main (main) where
 
-import           NanoSpec
+import           Test.Hspec
 import           System.IO
 import           System.IO.Silently
 import           System.Directory
