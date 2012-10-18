@@ -3,8 +3,12 @@
 -- your own means? Now you can, with 'silence' and 'capture'.
 
 module System.IO.Silently (
-  silence, hSilence,
-  capture, hCapture
+  silence,
+  hSilence,
+  capture,
+  capture_,
+  hCapture,
+  hCapture_,
 ) where
 
 import Prelude
@@ -62,6 +66,14 @@ getTempOrCurrentDirectory = getTemporaryDirectory `catchIOError` (\_ -> return "
 -- This will, as a side effect, create and delete a temp file in the temp directory or current directory if there is no temp directory.
 capture :: IO a -> IO (String, a)
 capture = hCapture [stdout]
+
+-- | Like `capture`, but discards the result of given action.
+capture_ :: IO a -> IO String
+capture_ = fmap fst . capture
+
+-- | Like `hCapture`, but discards the result of given action.
+hCapture_ :: [Handle] -> IO a -> IO String
+hCapture_ handles = fmap fst . hCapture handles
 
 -- | Run an IO action while preventing and capturing all output to the given handles.
 -- This will, as a side effect, create and delete a temp file in the temp directory or current directory if there is no temp directory.
