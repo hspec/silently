@@ -12,7 +12,13 @@ module System.IO.Silently (
 ) where
 
 import Prelude
+
+#if __GLASGOW_HASKELL__ >= 612
 import GHC.IO.Handle (hDuplicate, hDuplicateTo)
+#else
+import GHC.Handle (hDuplicate, hDuplicateTo)
+#endif
+
 import System.IO
 import qualified Control.Exception as E
 import Control.DeepSeq
