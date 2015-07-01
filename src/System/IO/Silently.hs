@@ -104,8 +104,14 @@ hCapture handles action = do
       go hs = goBracket go tmpHandle hs
 
 goBracket :: ([Handle] -> IO a) -> Handle -> [Handle] -> IO a
-goBracket go tmpHandle (h:hs) = E.bracket (do old <- hDuplicate h
-                                              hDuplicateTo tmpHandle h
-                                              return old)
-                                        (\old -> hDuplicateTo old h >> hClose old)
-                                        (\_   -> go hs)
+goBracket go tmpHandle (h:hs) = do
+  buffering <- hGetBuffering h
+  let redirect = do
+        old <- hDuplicate h
+        hDuplicateTo tmpHandle h
+        return old
+      restore old = do
+        hDuplicateTo old h
+        hSetBuffering h buffering
+        hClose old
+  E.bracket redirect restore (\_ -> go hs)
