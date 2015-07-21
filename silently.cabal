@@ -1,24 +1,23 @@
 name: silently
-version: 1.2.4.1
+version: 1.2.5
 cabal-version: >= 1.8
 build-type: Simple
 license: BSD3
 license-file: LICENSE
 copyright: (c) Trystan Spangler 2011
-maintainer: trystan.s@comcast.net
-stability:
-homepage: https://github.com/trystan/silently
-package-url: https://github.com/trystan/silently
-bug-reports: https://github.com/trystan/silently/issues
+maintainer: Sönke Hahn <soenkehahn@gmail.com>, Simon Hengel <sol@typeful.net>
+homepage: https://github.com/hspec/silently
+package-url: https://github.com/hspec/silently
+bug-reports: https://github.com/hspec/silently/issues
 synopsis: Prevent or capture writing to stdout and other handles.
 description: Prevent or capture writing to stdout and other handles.
-category:
+category: System, Testing
 author: Trystan Spangler
 tested-with: GHC ==7.0
 
 source-repository head
   type: git
-  location: https://github.com/trystan/silently
+  location: https://github.com/hspec/silently
 
 Library
   build-depends:
@@ -66,8 +65,6 @@ test-suite spec-generic
       exitcode-stdio-1.0
   ghc-options:
       -Wall -threaded
-      -- FIXME: use -Werror
-      -- -Wall -Werror -threaded
   hs-source-dirs:
       src
     , test
