@@ -64,7 +64,7 @@ getTempOrCurrentDirectory :: IO String
 getTempOrCurrentDirectory = getTemporaryDirectory `catchIOError` (\_ -> return ".")
   where
     -- NOTE: We can not use `catchIOError` from "System.IO.Error", it is only
-    -- availabel in base >= 4.4.
+    -- available in base >= 4.4.
     catchIOError :: IO a -> (IOError -> IO a) -> IO a
     catchIOError = E.catch
 

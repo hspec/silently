@@ -47,7 +47,7 @@ test-suite spec-specific
   type:
       exitcode-stdio-1.0
   ghc-options:
-      -Wall -Werror -threaded
+      -Wall -threaded
   hs-source-dirs:
       test
   build-depends:
