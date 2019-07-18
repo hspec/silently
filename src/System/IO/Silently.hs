@@ -26,7 +26,7 @@ import System.Directory (removeFile,getTemporaryDirectory)
 
 mNullDevice :: Maybe FilePath
 #ifdef WINDOWS
-mNullDevice = Just "NUL"
+mNullDevice = Just "\\\\.\\NUL"
 #elif UNIX
 mNullDevice = Just "/dev/null"
 #else
