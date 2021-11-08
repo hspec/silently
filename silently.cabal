@@ -5,7 +5,7 @@ build-type: Simple
 license: BSD3
 license-file: LICENSE
 copyright: (c) Trystan Spangler 2011
-maintainer: Sönke Hahn <soenkehahn@gmail.com>, Simon Hengel <sol@typeful.net>
+maintainer: Sönke Hahn <soenkehahn@gmail.com>, Simon Hengel <sol@typeful.net>, Andreas Abel
 homepage: https://github.com/hspec/silently
 package-url: https://github.com/hspec/silently
 bug-reports: https://github.com/hspec/silently/issues
@@ -28,6 +28,10 @@ tested-with:
   GHC == 8.10.7
   GHC == 9.0.1
   GHC == 9.2.1
+
+extra-source-files:
+  CHANGELOG.md
+  README.md
 
 source-repository head
   type: git
