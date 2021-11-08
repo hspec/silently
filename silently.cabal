@@ -10,7 +10,7 @@ homepage: https://github.com/hspec/silently
 package-url: https://github.com/hspec/silently
 bug-reports: https://github.com/hspec/silently/issues
 synopsis: Prevent or capture writing to stdout and other handles.
-description: Prevent or capture writing to stdout and other handles.
+description: Prevent or capture writing to stdout, stderr, and other handles.
 category: System, Testing
 author: Trystan Spangler
 tested-with:
@@ -38,7 +38,8 @@ Library
       base >=4 && <=5
     , directory
     , deepseq
-  exposed-modules: System.IO.Silently
+  exposed-modules:
+      System.IO.Silently
 
   hs-source-dirs:
       src
@@ -82,6 +83,8 @@ test-suite spec-generic
   hs-source-dirs:
       src
     , test
+  other-modules:
+      System.IO.Silently
 
   build-depends:
       base
