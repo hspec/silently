@@ -1,28 +1,31 @@
 {-# LANGUAGE CPP #-}
--- | Need to prevent output to the terminal, a file, or stderr? Need to capture it and use it for
--- your own means? Now you can, with 'silence' and 'capture'.
+{-# LANGUAGE ScopedTypeVariables #-}
 
-module System.IO.Silently (
-  silence,
-  hSilence,
-  capture,
-  capture_,
-  hCapture,
-  hCapture_,
-) where
+-- | Need to prevent output to the terminal, a file, or stderr?
+--   Need to capture it and use it for your own means?
+--   Now you can, with 'silence' and 'capture'.
+
+module System.IO.Silently
+  ( silence, hSilence
+  , capture, capture_, hCapture, hCapture_
+  ) where
 
 import Prelude
 
-#if __GLASGOW_HASKELL__ >= 612
-import GHC.IO.Handle (hDuplicate, hDuplicateTo)
-#else
-import GHC.Handle (hDuplicate, hDuplicateTo)
-#endif
-
-import System.IO
 import qualified Control.Exception as E
 import Control.DeepSeq
-import System.Directory (removeFile,getTemporaryDirectory)
+  ( deepseq )
+
+import GHC.IO.Handle
+  ( hDuplicate, hDuplicateTo )
+
+import System.Directory
+  ( getTemporaryDirectory, removeFile )
+import System.IO
+  ( Handle, IOMode(AppendMode), SeekMode(AbsoluteSeek)
+  , hClose, hFlush, hGetBuffering, hGetContents, hSeek, hSetBuffering
+  , openFile, openTempFile, stdout
+  )
 
 mNullDevice :: Maybe FilePath
 #ifdef WINDOWS
@@ -38,27 +41,34 @@ silence :: IO a -> IO a
 silence = hSilence [stdout]
 
 -- | Run an IO action while preventing all output to the given handles.
-hSilence :: [Handle] -> IO a -> IO a
-hSilence handles action = case mNullDevice of
-  Just nullDevice -> E.bracket (openFile nullDevice AppendMode)
-                             hClose
-                             prepareAndRun
+hSilence :: forall a. [Handle] -> IO a -> IO a
+hSilence handles action =
+  case mNullDevice of
+    Just nullDevice ->
+      E.bracket (openFile nullDevice AppendMode)
+                hClose
+                prepareAndRun
+    Nothing -> withTempFile "silence" prepareAndRun
+  where
+    prepareAndRun :: Handle -> IO a
+    prepareAndRun tmpHandle = go handles
+      where
+        go []     = action
+        go (h:hs) = goBracket go tmpHandle h hs
 
-  Nothing -> do
-    tmpDir <- getTempOrCurrentDirectory
-    E.bracket (openTempFile tmpDir "silence")
-                               cleanup
-                               (prepareAndRun . snd)
 
- where
-  cleanup (tmpFile,tmpHandle) = do
-    hClose tmpHandle
-    removeFile tmpFile
-  prepareAndRun tmpHandle = go handles
-    where
-      go [] = action
-      go hs = goBracket go tmpHandle hs
-
+-- Provide a tempfile for the given action and remove it afterwards.
+withTempFile :: String -> (Handle -> IO a) -> IO a
+withTempFile tmpName action = do
+  tmpDir <- getTempOrCurrentDirectory
+  E.bracket (openTempFile tmpDir tmpName)
+            cleanup
+            (action . snd)
+  where
+    cleanup :: (FilePath, Handle) -> IO ()
+    cleanup (tmpFile, tmpHandle) = do
+      hClose tmpHandle
+      removeFile tmpFile
 
 getTempOrCurrentDirectory :: IO String
 getTempOrCurrentDirectory = getTemporaryDirectory `catchIOError` (\_ -> return ".")
@@ -69,7 +79,8 @@ getTempOrCurrentDirectory = getTemporaryDirectory `catchIOError` (\_ -> return "
     catchIOError = E.catch
 
 -- | Run an IO action while preventing and capturing all output to stdout.
--- This will, as a side effect, create and delete a temp file in the temp directory or current directory if there is no temp directory.
+-- This will, as a side effect, create and delete a temp file in the temp directory
+-- or current directory if there is no temp directory.
 capture :: IO a -> IO (String, a)
 capture = hCapture [stdout]
 
@@ -82,29 +93,24 @@ hCapture_ :: [Handle] -> IO a -> IO String
 hCapture_ handles = fmap fst . hCapture handles
 
 -- | Run an IO action while preventing and capturing all output to the given handles.
--- This will, as a side effect, create and delete a temp file in the temp directory or current directory if there is no temp directory.
-hCapture :: [Handle] -> IO a -> IO (String, a)
-hCapture handles action = do
-  tmpDir <- getTempOrCurrentDirectory
-  E.bracket (openTempFile tmpDir "capture")
-                             cleanup
-                             (prepareAndRun . snd)
- where
-  cleanup (tmpFile,tmpHandle) = do
-    hClose tmpHandle
-    removeFile tmpFile
-  prepareAndRun tmpHandle = go handles
-    where
-      go [] = do
-              a <- action
-              mapM_ hFlush handles
-              hSeek tmpHandle AbsoluteSeek 0
-              str <- hGetContents tmpHandle
-              str `deepseq` return (str,a)
-      go hs = goBracket go tmpHandle hs
+-- This will, as a side effect, create and delete a temp file in the temp directory
+-- or current directory if there is no temp directory.
+hCapture :: forall a. [Handle] -> IO a -> IO (String, a)
+hCapture handles action = withTempFile "capture" prepareAndRun
+  where
+    prepareAndRun :: Handle -> IO (String, a)
+    prepareAndRun tmpHandle = go handles
+      where
+        go [] = do
+          a <- action
+          mapM_ hFlush handles
+          hSeek tmpHandle AbsoluteSeek 0
+          str <- hGetContents tmpHandle
+          str `deepseq` return (str, a)
+        go (h:hs) = goBracket go tmpHandle h hs
 
-goBracket :: ([Handle] -> IO a) -> Handle -> [Handle] -> IO a
-goBracket go tmpHandle (h:hs) = do
+goBracket :: ([Handle] -> IO a) -> Handle -> Handle -> [Handle] -> IO a
+goBracket go tmpHandle h hs = do
   buffering <- hGetBuffering h
   let redirect = do
         old <- hDuplicate h
