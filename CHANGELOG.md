@@ -1,3 +1,10 @@
+# 1.2.5.3 August 2022
+
+* Tested with GHC 7.0 - 9.4.1.
+* Remove remnants of GHC 6.x support.
+* Silence incomplete pattern matching warning, refactor code.
+* Add section about limitations to README.
+
 # 1.2.5.2 November 2021
 
 * Tested with GHC 7.0 - 9.2.
