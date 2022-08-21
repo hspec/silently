@@ -28,3 +28,12 @@ will print:
  captured: wookies!
  returned: 123
 ```
+
+## Limitations
+
+Capturing/silencing might not work as expected if the action uses the FFI
+or conceals output under `unsafePerformIO` or similar unsafe operations.
+
+Examples:
+- FFI: https://github.com/hspec/silently/issues/3
+- `unsafePerformIO`: https://github.com/bos/filemanip/issues/22
