@@ -57,6 +57,12 @@ Library
   if os(linux) || os(osx) || os(freebsd) || os(openbsd) || os(netbsd)
     cpp-options: -DUNIX
 
+  ghc-options:
+    -Wall
+  if impl(ghc >= 8)
+    ghc-options:
+      -Wcompat
+
 -- This tests the platform specific implementation.
 --
 -- NOTE: Cabal 1.10 can not deal with conditional (== if-else) options.  This
