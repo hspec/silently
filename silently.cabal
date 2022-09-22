@@ -63,6 +63,10 @@ Library
     ghc-options:
       -Wcompat
 
+  if os(windows) && impl(ghc >= 9)
+    build-depends: Win32
+    other-modules: System.IO.Silently.WinIO
+
 -- This tests the platform specific implementation.
 --
 -- NOTE: Cabal 1.10 can not deal with conditional (== if-else) options.  This

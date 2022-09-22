@@ -27,6 +27,11 @@ import System.IO
   , openFile, openTempFile, stdout
   )
 
+#if defined(WINDOWS) && __GLASGOW_HASKELL__ >= 900
+import GHC.IO.SubSystem ((<!>))
+import qualified System.IO.Silently.WinIO as WinIO
+#endif
+
 mNullDevice :: Maybe FilePath
 #ifdef WINDOWS
 mNullDevice = Just "\\\\.\\NUL"
@@ -110,7 +115,14 @@ hCapture handles action = withTempFile "capture" prepareAndRun
         go (h:hs) = goBracket go tmpHandle h hs
 
 goBracket :: ([Handle] -> IO a) -> Handle -> Handle -> [Handle] -> IO a
-goBracket go tmpHandle h hs = do
+#if defined(WINDOWS) && __GLASGOW_HASKELL__ >= 900
+goBracket = goBracketPosix <!> WinIO.goBracket
+#else
+goBracket = goBracketPosix
+#endif
+
+goBracketPosix :: ([Handle] -> IO a) -> Handle -> Handle -> [Handle] -> IO a
+goBracketPosix go tmpHandle h hs = do
   buffering <- hGetBuffering h
   let redirect = do
         old <- hDuplicate h
