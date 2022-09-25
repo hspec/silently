@@ -63,14 +63,8 @@ Library
     ghc-options:
       -Wcompat
 
--- This tests the platform specific implementation.
---
--- NOTE: Cabal 1.10 can not deal with conditional (== if-else) options.  This
--- is why we depend on silently to test the platform specific implementation.
---
--- As a consequence we can not use Hspec for testing, as this would result in
--- depending on two different versions of silently at the same time!
-test-suite spec-specific
+-- This tests the generic implementation, that should work on all platforms.
+test-suite spec-generic
   type:
       exitcode-stdio-1.0
   hs-source-dirs:
@@ -80,33 +74,10 @@ test-suite spec-specific
   default-language:
       Haskell98
   ghc-options:
-      -Wall -threaded
+      -Wall -threaded -rtsopts
   build-depends:
       base
     , silently
-    , directory
-    , nanospec
-    , temporary
-
--- This tests the generic implementation, that should work on all platforms.
-test-suite spec-generic
-  type:
-      exitcode-stdio-1.0
-  hs-source-dirs:
-      src
-    , test
-  main-is:
-      Spec.hs
-  default-language:
-      Haskell98
-  ghc-options:
-      -Wall -threaded
-  other-modules:
-      System.IO.Silently
-
-  build-depends:
-      base
-    , deepseq
     , directory
     , nanospec
     , temporary
