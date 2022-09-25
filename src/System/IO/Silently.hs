@@ -29,7 +29,6 @@ import System.IO
 
 #if defined(WINDOWS) && __GLASGOW_HASKELL__ >= 900
 import GHC.IO.SubSystem ((<!>))
-import qualified System.IO.Silently.WinIO as WinIO
 #endif
 
 mNullDevice :: Maybe FilePath
@@ -116,7 +115,8 @@ hCapture handles action = withTempFile "capture" prepareAndRun
 
 goBracket :: ([Handle] -> IO a) -> Handle -> Handle -> [Handle] -> IO a
 #if defined(WINDOWS) && __GLASGOW_HASKELL__ >= 900
-goBracket = goBracketPosix <!> WinIO.goBracket
+goBracket = goBracketPosix <!> giveUp
+  where giveUp go _ _ _ = go []
 #else
 goBracket = goBracketPosix
 #endif
