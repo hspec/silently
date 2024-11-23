@@ -29,7 +29,19 @@ will print:
  returned: 123
 ```
 
-## Limitations
+## Not thread-safe
+
+Since all threads of a process share the standard output handles `stdout` and `stderr`,
+capturing output to these handle will capture the output of __all threads__,
+not just the one running the action under `capture`.
+
+In essence, this library does not work in a situation where multiple threads are writing to the handle
+whose output _produced by the given action_ we want to capture.
+
+See:
+-  https://github.com/hspec/silently/issues/6
+
+## Further limitations
 
 Capturing/silencing might not work as expected if the action uses the FFI
 or conceals output under `unsafePerformIO` or similar unsafe operations.

@@ -1,22 +1,26 @@
-cabal-version: >= 1.10
+cabal-version: 1.18
 name: silently
-version: 1.2.5.3
+version: 1.2.5.4
 build-type: Simple
 license: BSD3
 license-file: LICENSE
+author: Trystan Spangler
 copyright: (c) Trystan Spangler 2011
-maintainer: Sönke Hahn <soenkehahn@gmail.com>, Simon Hengel <sol@typeful.net>, Andreas Abel
+maintainer: Simon Hengel <sol@typeful.net>, Andreas Abel
 homepage: https://github.com/hspec/silently
 package-url: https://github.com/hspec/silently
 bug-reports: https://github.com/hspec/silently/issues
 synopsis: Prevent or capture writing to stdout and other handles.
 description: Prevent or capture writing to stdout, stderr, and other handles.
 category: System, Testing
-author: Trystan Spangler
 
 tested-with:
-  GHC == 9.4.1
-  GHC == 9.2.4
+  GHC == 9.12.0
+  GHC == 9.10.1
+  GHC == 9.8.3
+  GHC == 9.6.6
+  GHC == 9.4.8
+  GHC == 9.2.8
   GHC == 9.0.2
   GHC == 8.10.7
   GHC == 8.8.4
@@ -24,14 +28,8 @@ tested-with:
   GHC == 8.4.4
   GHC == 8.2.2
   GHC == 8.0.2
-  GHC == 7.10.3
-  GHC == 7.8.4
-  GHC == 7.6.3
-  GHC == 7.4.2
-  GHC == 7.2.2
-  GHC == 7.0.4
 
-extra-source-files:
+extra-doc-files:
   CHANGELOG.md
   README.md
 
@@ -82,7 +80,7 @@ test-suite spec-specific
   ghc-options:
       -Wall -threaded
   build-depends:
-      base
+      base  >= 4.3 && < 5
     , silently
     , directory
     , nanospec
@@ -105,7 +103,7 @@ test-suite spec-generic
       System.IO.Silently
 
   build-depends:
-      base
+      base  >= 4.3 && < 5
     , deepseq
     , directory
     , nanospec
